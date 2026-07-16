@@ -58,7 +58,7 @@ async function loadRoutes(dir, prefix = '/api') {
       if (routeName === 'index') {
         routePath = prefix;
       } else {
-        routeName = routeName.replace(/\[(\w+)\]/g, ':$1');
+        routeName = routeName.replace(/\[\.\.\.(\w+)\]/g, '*').replace(/\[(\w+)\]/g, ':$1');
         routePath = `${prefix}/${routeName}`;
       }
 
@@ -95,3 +95,4 @@ app.listen(PORT, () => {
   console.log('   Vite frontend should proxy /api/* to this server.');
   console.log('   Run "npm run dev" in another terminal for the frontend.\n');
 });
+

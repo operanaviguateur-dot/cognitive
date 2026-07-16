@@ -1,6 +1,6 @@
 /**
  * api/ai/invoke-llm.js — POST /api/ai/invoke-llm
- * Proxies LLM requests to the configured AI provider (Groq/OpenAI/OpenRouter/Gemini)
+ * AI proxy Serverless Function. Proxies LLM requests to the configured provider.
  */
 import { invokeLLM } from '../../services/aiService.js';
 

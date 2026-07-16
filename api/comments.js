@@ -1,7 +1,12 @@
 /**
- * api/comments/index.js — GET /api/comments | POST /api/comments
+ * api/comments.js — GET /api/comments | POST /api/comments
+ * Collection endpoint: get comments for an article or post a new one.
  */
-import { getByArticleId, create } from '../../lib/repositories/commentRepo.js';
+import { getByArticleId, create } from '../lib/repositories/commentRepo.js';
+
+function isInvalidUUID(err) {
+  return err?.code === '22P02' || err?.message?.includes('invalid input syntax for type uuid');
+}
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
@@ -11,7 +16,8 @@ export default async function handler(req, res) {
       const comments = await getByArticleId(article_id, sort, parseInt(limit));
       return res.status(200).json(comments);
     } catch (err) {
-      console.error('[comments/index GET]', err);
+      if (isInvalidUUID(err)) return res.status(200).json([]); // invalid UUID → no comments
+      console.error('[comments GET]', err);
       return res.status(500).json({ message: 'Failed to fetch comments' });
     }
   }
@@ -25,7 +31,7 @@ export default async function handler(req, res) {
       const comment = await create({ article_id, author_name, content, ai_sentiment });
       return res.status(201).json(comment);
     } catch (err) {
-      console.error('[comments/index POST]', err);
+      console.error('[comments POST]', err);
       return res.status(500).json({ message: 'Failed to create comment' });
     }
   }

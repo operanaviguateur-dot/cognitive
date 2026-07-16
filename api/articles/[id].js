@@ -1,19 +1,22 @@
 /**
  * api/articles/[id].js — GET|PUT|DELETE /api/articles/:id
+ * Individual article endpoint.
  */
 import { getById, update, deleteById } from '../../lib/repositories/articleRepo.js';
 import { optionalAuth, isAdmin } from '../../lib/auth/middleware.js';
 
+// PostgreSQL error code for invalid UUID format
+function isInvalidUUID(err) {
+  return err?.code === '22P02' || err?.message?.includes('invalid input syntax for type uuid');
+}
+
 export default async function handler(req, res) {
   await optionalAuth(req, res, null);
 
-  // Extract id from URL path: /api/articles/[id]
-  const urlParts = req.url?.split('?')[0].split('/').filter(Boolean);
-  const id = urlParts?.[urlParts.length - 1];
+  // Extract id: Vercel sets req.query.id, Express uses req.params.id; fallback to URL parsing
+  const id = req.query?.id || req.params?.id || req.url?.split('?')[0].split('/').filter(Boolean).pop();
 
-  if (!id || id === 'index') {
-    return res.status(400).json({ message: 'Article ID is required' });
-  }
+  if (!id) return res.status(400).json({ message: 'Article ID is required' });
 
   if (req.method === 'GET') {
     try {
@@ -21,7 +24,8 @@ export default async function handler(req, res) {
       if (!article) return res.status(404).json({ message: 'Article not found' });
       return res.status(200).json(article);
     } catch (err) {
-      console.error('[articles/[id] GET]', err);
+      if (isInvalidUUID(err)) return res.status(404).json({ message: 'Article not found' });
+      console.error('[articles/:id GET]', err);
       return res.status(500).json({ message: 'Failed to fetch article' });
     }
   }
@@ -33,7 +37,7 @@ export default async function handler(req, res) {
       if (!article) return res.status(404).json({ message: 'Article not found' });
       return res.status(200).json(article);
     } catch (err) {
-      console.error('[articles/[id] PUT]', err);
+      console.error('[articles/:id PUT]', err);
       return res.status(500).json({ message: 'Failed to update article' });
     }
   }
@@ -44,7 +48,7 @@ export default async function handler(req, res) {
       await deleteById(id);
       return res.status(200).json({ message: 'Article deleted' });
     } catch (err) {
-      console.error('[articles/[id] DELETE]', err);
+      console.error('[articles/:id DELETE]', err);
       return res.status(500).json({ message: 'Failed to delete article' });
     }
   }
