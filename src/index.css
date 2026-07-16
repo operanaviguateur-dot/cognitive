@@ -1,0 +1,111 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,800;0,9..144,900;1,9..144,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 42 30% 94%;
+    --foreground: 20 14% 12%;
+    --card: 42 40% 99%;
+    --card-foreground: 20 14% 12%;
+    --popover: 42 40% 99%;
+    --popover-foreground: 20 14% 12%;
+    --primary: 15 63% 55%;
+    --primary-foreground: 42 40% 99%;
+    --secondary: 42 18% 90%;
+    --secondary-foreground: 20 14% 12%;
+    --muted: 42 16% 90%;
+    --muted-foreground: 20 6% 42%;
+    --accent: 15 63% 55%;
+    --accent-foreground: 42 40% 99%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 42 40% 99%;
+    --border: 40 10% 84%;
+    --input: 40 10% 84%;
+    --ring: 15 63% 55%;
+    --chart-1: 15 63% 55%;
+    --chart-2: 170 30% 40%;
+    --chart-3: 20 6% 42%;
+    --chart-4: 43 60% 60%;
+    --chart-5: 27 70% 60%;
+    --radius: 0.5rem;
+    --font-heading: 'Fraunces', Georgia, serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+    --font-display: 'Fraunces', Georgia, serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+    --sidebar-background: 20 14% 5%;
+    --sidebar-foreground: 40 20% 90%;
+    --sidebar-primary: 15 63% 55%;
+    --sidebar-primary-foreground: 42 40% 99%;
+    --sidebar-accent: 20 10% 12%;
+    --sidebar-accent-foreground: 40 20% 90%;
+    --sidebar-border: 20 10% 15%;
+    --sidebar-ring: 15 63% 55%;
+  }
+
+  .dark {
+    --background: 20 14% 4%;
+    --foreground: 40 20% 90%;
+    --card: 20 12% 7%;
+    --card-foreground: 40 20% 90%;
+    --popover: 20 12% 7%;
+    --popover-foreground: 40 20% 90%;
+    --primary: 15 63% 55%;
+    --primary-foreground: 42 40% 99%;
+    --secondary: 20 8% 12%;
+    --secondary-foreground: 40 20% 90%;
+    --muted: 20 8% 12%;
+    --muted-foreground: 40 8% 62%;
+    --accent: 15 63% 55%;
+    --accent-foreground: 42 40% 99%;
+    --destructive: 0 50% 30%;
+    --destructive-foreground: 42 40% 98%;
+    --border: 20 8% 15%;
+    --input: 20 8% 15%;
+    --ring: 15 63% 55%;
+    --chart-1: 15 63% 55%;
+    --chart-2: 170 30% 45%;
+    --chart-3: 40 8% 62%;
+    --chart-4: 280 50% 55%;
+    --chart-5: 340 60% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+}
+
+.confidence-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsl(40 10% 80%), transparent);
+}
+
+.ai-halo {
+  backdrop-filter: blur(12px);
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+}
+
+.prose-article {
+  font-size: 1.125rem;
+  line-height: 1.75;
+}
+
+.prose-article p {
+  margin-bottom: 1.5em;
+}
+
+.font-mono-upper {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 500;
+}
