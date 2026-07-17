@@ -73,6 +73,16 @@ async function loadRoutes(dir, prefix = '/api') {
             // Simulate Vercel's req/res interface
             handler(req, res);
           });
+
+          // Simulate Vercel's vercel.json rewrites for our 3 main entities
+          if (['articles', 'categories', 'comments'].includes(routeName)) {
+            app.all(`${routePath}/:id`, (req, res) => {
+              req.query = req.query || {};
+              req.query.id = req.params.id;
+              handler(req, res);
+            });
+            console.log(`  ✓ ${routePath}/:id (rewrite)`);
+          }
           console.log(`  ✓ ${routePath}`);
         }
       } catch (err) {

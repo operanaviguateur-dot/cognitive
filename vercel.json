@@ -3,6 +3,9 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
+    { "source": "/api/categories/:id", "destination": "/api/categories?id=:id" },
+    { "source": "/api/articles/:id", "destination": "/api/articles?id=:id" },
+    { "source": "/api/comments/:id", "destination": "/api/comments?id=:id" },
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
