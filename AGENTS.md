@@ -1,36 +1,57 @@
-const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
-
 # AGENTS.md
 
 ## Project Context
 
-This is a Base44 app repository. Treat it as user-owned application code, keep changes focused on the user's request, and preserve existing project conventions.
+This is a standalone React + Vercel application — **fully independent, no Base44 dependency**.
 
-Start with `README.md` for local setup, environment variables, and publish workflow.
+## Architecture
 
-## Base44 References
-
-- CLI overview: https://docs.db.com/developers/references/cli/get-started/overview.md
-- Agent skills: https://docs.db.com/developers/backend/overview/skills.md
-
-If your agent supports Agent Skills, install or update Base44 skills before Base44-specific work:
-
-```bash
-npx skills add base44/skills
-```
+- **Frontend**: React (Vite) — `src/`
+- **Backend**: Vercel Serverless Functions — `api/`
+- **Database**: PostgreSQL (Neon) via `lib/repositories/`
+- **Auth**: JWT in HttpOnly cookies
+- **AI**: Proxy via `/api/ai/invoke-llm` → configured LLM provider
 
 ## Key Files
 
-- `src/`: frontend application source.
-- `src/api/base44Client.js`: frontend Base44 SDK client.
-- `vite.config.js`: Vite config and Base44 Vite plugin setup.
-- `.env.local`: local-only environment values; never commit secrets.
+- `src/api/client.js`: frontend API client (fetch-based, replaces Base44 SDK)
+- `src/lib/AuthContext.jsx`: authentication context
+- `api/auth/[action].js`: all auth routes (login, register, me, logout, OTP, OAuth)
+- `api/articles.js` / `api/articles/[id].js`: articles CRUD
+- `api/categories.js` / `api/categories/[id].js`: categories CRUD
+- `api/comments.js` / `api/comments/[id].js`: comments CRUD
+- `api/ai/invoke-llm.js`: AI proxy
+- `lib/repositories/`: database access layer
+- `lib/auth/`: JWT and middleware
+- `services/aiService.js`: LLM provider abstraction
+- `schema.sql`: PostgreSQL schema
+- `.env.local`: local environment variables (never commit)
+- `vercel.json`: Vercel routing config
+
+## Run Locally
+
+```bash
+npm install
+npm run dev:full   # starts API server (port 3001) + Vite frontend (port 5173)
+```
+
+## Environment Variables Required
+
+```
+DATABASE_URL=postgresql://...
+JWT_SECRET=...
+APP_URL=https://your-app.vercel.app
+GOOGLE_CLIENT_ID=...         # optional, for Google OAuth
+GOOGLE_CLIENT_SECRET=...     # optional
+SMTP_HOST=...                # optional, for OTP emails
+SMTP_USER=...
+SMTP_PASS=...
+AI_API_KEY=...               # Groq / OpenAI / OpenRouter key
+```
 
 ## Working Notes
 
-- Use `base44 dev` as the default local development command when you need the local Base44 backend. It can run the backend and frontend together.
-- When docs or code mention the frontend being started automatically, that usually means the Base44 project config includes `site.serveCommand`, for example `"serveCommand": "npm run dev"` in `base44/config.jsonc`.
-- Use `npm run dev` only for frontend-only work against the hosted Base44 backend.
-- Prefer the existing Base44 CLI workflow over adding new npm scripts for Base44-specific tasks.
-- Reuse the existing SDK client and Vite plugin patterns before adding new Base44 integration paths.
-- Run the relevant checks from `package.json` before finishing code changes.
+- Do NOT use Base44 SDK, `base44Client.js`, or `globalThis.__B44_DB__`
+- All API calls go through `src/api/client.js` (`apiGet`, `apiPost`, `apiPut`, `apiDelete`, `apiAI`)
+- Admin routes are protected by JWT + role check in middleware
+- The Vercel deployment is triggered automatically on push to `main`

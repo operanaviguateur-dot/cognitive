@@ -1,12 +1,10 @@
-const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
-
 <!doctype html>
-<html lang="en">
+<html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="https://db.com/logo_v2.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="manifest" href="/manifest.json" />
+    <meta name="description" content="Cognitive Chronicle — Plateforme d'intelligence éditoriale alimentée par l'IA. Suivez l'actualité, analysez les tendances et publiez des articles enrichis." />
     <title>Cognitive Chronicle — Intelligence Éditoriale</title>
     <script>
       (function () {

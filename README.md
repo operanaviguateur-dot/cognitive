@@ -1,79 +1,100 @@
-const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
+# Cognitive Chronicle
 
-# Base44 Project
+Plateforme d'intelligence éditoriale alimentée par l'IA — **React + Vercel, sans aucune dépendance Base44**.
 
-Use this repository to run and edit the app locally, then publish changes back through db.
+## Stack
 
-Any change pushed to the repo will also be reflected in the Base44 Builder.
+- **Frontend** : React 18 + Vite
+- **Backend** : Vercel Serverless Functions (`api/`)
+- **Base de données** : PostgreSQL (Neon) via `lib/repositories/`
+- **Auth** : JWT dans des cookies HttpOnly
+- **IA** : Proxy `/api/ai/invoke-llm` → Groq / OpenAI / OpenRouter
 
-## Prerequisites
+## Prérequis
 
-1. Clone the repository using the project's Git URL.
-2. Navigate to the project directory.
-3. Install dependencies: `npm install`.
-4. Install the Base44 CLI: `npm install -g base44@latest`.
+1. Une base de données PostgreSQL (ex. [Neon](https://neon.tech))
+2. Node.js 18+
+3. Un compte Vercel connecté à ce dépôt GitHub
 
-See the [Base44 CLI docs](https://docs.db.com/developers/references/cli/get-started/overview) if you want to run Base44 commands directly.
-
-## Run Locally
-
-Run the full local development environment from the project root:
-
-```bash
-base44 dev
-```
-
-`base44 dev` starts the local Base44 development backend and, when this app is configured for it, also starts the frontend dev server for you. Use the frontend URL printed by the command.
-
-For example, when the Base44 project config includes a `serveCommand`, `base44 dev` can launch the frontend too:
-
-```json5
-{
-  "site": {
-    "serveCommand": "npm run dev"
-  }
-}
-```
-
-In a Base44 project this lives in `base44/config.jsonc`.
-
-## Run Only The Frontend
-
-If you only want to work on the frontend against the hosted Base44 backend, run:
+## Installation locale
 
 ```bash
-npm run dev
+git clone https://github.com/operanaviguateur-dot/cognitive.git
+cd cognitive
+npm install
 ```
 
-Open the local URL printed by Vite.
+## Configuration
 
-## Use The Hosted Backend
-
-For frontend-only development, create or update `.env.local` in the project root:
+Copiez `.env.example` en `.env.local` et remplissez vos valeurs :
 
 ```bash
-VITE_BASE44_APP_ID=your_app_id
-VITE_BASE44_APP_BASE_URL=https://your-app.db.app
+DATABASE_URL=postgresql://...
+JWT_SECRET=votre-secret-jwt-32-caractères-minimum
+APP_URL=http://localhost:5173
+GOOGLE_CLIENT_ID=...         # optionnel — Google OAuth
+GOOGLE_CLIENT_SECRET=...     # optionnel
+SMTP_HOST=...                # optionnel — emails OTP
+SMTP_USER=...
+SMTP_PASS=...
+AI_API_KEY=...               # Groq / OpenAI / OpenRouter
 ```
 
-`VITE_BASE44_APP_ID` identifies the Base44 app.
-
-`VITE_BASE44_APP_BASE_URL` tells the Base44 Vite plugin where to send local `/api` requests. Point it at your deployed Base44 app URL when you want the local frontend to use the hosted backend.
-
-When you use `base44 dev`, the command injects the local Base44 values for you, so `.env.local` is mainly needed for frontend-only workflows.
-
-## Publish Your Changes
-
-After pushing your changes to git, open the Base44 dashboard and publish the app:
+## Initialiser la base de données
 
 ```bash
-base44 dashboard open
+# Exécuter le schéma SQL sur votre base Neon (une seule fois)
+psql $DATABASE_URL -f schema.sql
 ```
 
-## Docs & Support
+## Lancer en développement
 
-Documentation: [https://docs.db.com/Integrations/Using-GitHub](https://docs.db.com/Integrations/Using-GitHub)
+```bash
+npm run dev:full
+# → API server sur http://localhost:3001
+# → Frontend Vite sur http://localhost:5173
+```
 
-Base44 CLI command reference: [https://docs.db.com/developers/references/cli/commands/introduction](https://docs.db.com/developers/references/cli/commands/introduction)
+## Structure du projet
 
-Support: [https://app.db.com/support](https://app.db.com/support)
+```
+api/
+  auth/[action].js      # login, register, me, logout, OTP, Google OAuth
+  articles.js           # GET list + POST create
+  articles/[id].js      # GET + PUT + DELETE
+  categories.js
+  categories/[id].js
+  comments.js
+  comments/[id].js
+  ai/invoke-llm.js      # proxy IA
+
+lib/
+  db.js                 # connexion PostgreSQL
+  auth/                 # JWT + middleware
+  repositories/         # accès base de données
+
+services/
+  aiService.js          # abstraction LLM multi-provider
+
+src/
+  api/client.js         # client fetch (remplace Base44 SDK)
+  lib/AuthContext.jsx   # contexte d'authentification
+  pages/               # Home, ArticlePage, Login, Register, admin/*
+  components/          # Navbar, CommentsSection, SynthesisBar, ...
+
+schema.sql              # schéma PostgreSQL complet
+vercel.json             # config routage Vercel
+```
+
+## Déploiement Vercel
+
+Chaque push sur `main` déclenche automatiquement un redéploiement.
+
+Configurez vos variables d'environnement dans le dashboard Vercel :
+**Settings → Environment Variables**
+
+## Notes importantes
+
+- Ne jamais utiliser `globalThis.__B44_DB__` ou le SDK Base44
+- Tous les appels API passent par `src/api/client.js`
+- Les routes admin sont protégées par JWT + vérification de rôle
