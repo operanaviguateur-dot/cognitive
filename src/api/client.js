@@ -4,14 +4,22 @@
  */
 
 /**
- * Core fetch wrapper with credentials and error handling
+ * Core fetch wrapper with credentials and error handling.
+ * Automatically includes X-Admin-Code from sessionStorage when available.
  */
 async function apiFetch(path, options = {}) {
+  // Auto-include admin code header on every request (set by AdminGate)
+  const adminCode =
+    typeof sessionStorage !== 'undefined'
+      ? sessionStorage.getItem('chronicle_admin_code') || ''
+      : '';
+
   const res = await fetch(path, {
     ...options,
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
+      ...(adminCode ? { 'X-Admin-Code': adminCode } : {}),
       ...options.headers,
     },
   });
@@ -34,8 +42,6 @@ async function apiFetch(path, options = {}) {
 
 /**
  * GET request with optional query parameters
- * @param {string} path - API endpoint path
- * @param {object} params - Query parameters (undefined/null values are filtered out)
  */
 export const apiGet = (path, params = {}) => {
   const filtered = Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== '');
@@ -46,36 +52,34 @@ export const apiGet = (path, params = {}) => {
 /**
  * POST request with JSON body
  */
-export const apiPost = (path, body) =>
-  apiFetch(path, { method: 'POST', body: JSON.stringify(body) });
+export const apiPost = (path, body, options = {}) =>
+  apiFetch(path, { method: 'POST', body: JSON.stringify(body), ...options });
 
 /**
  * PUT request with JSON body
  */
-export const apiPut = (path, body) =>
-  apiFetch(path, { method: 'PUT', body: JSON.stringify(body) });
+export const apiPut = (path, body, options = {}) =>
+  apiFetch(path, { method: 'PUT', body: JSON.stringify(body), ...options });
 
 /**
  * DELETE request
  */
-export const apiDelete = (path) =>
-  apiFetch(path, { method: 'DELETE' });
+export const apiDelete = (path, options = {}) =>
+  apiFetch(path, { method: 'DELETE', ...options });
 
 /**
  * AI LLM invocation shorthand
- * @param {string} prompt - The prompt to send
- * @param {object} response_json_schema - Expected JSON schema
- * @param {string} [model] - Optional model override
  */
 export const apiAI = (prompt, response_json_schema, model) =>
   apiPost('/api/ai/invoke-llm', { prompt, response_json_schema, model });
 
 /**
  * Get admin headers (X-Admin-Code) from session storage
- * Used automatically by the AdminGate component
  */
 export const getAdminHeaders = () => ({
-  'X-Admin-Code': sessionStorage.getItem('chronicle_admin_code') || '',
+  'X-Admin-Code': typeof sessionStorage !== 'undefined'
+    ? sessionStorage.getItem('chronicle_admin_code') || ''
+    : '',
 });
 
 export default { apiGet, apiPost, apiPut, apiDelete, apiAI, getAdminHeaders };

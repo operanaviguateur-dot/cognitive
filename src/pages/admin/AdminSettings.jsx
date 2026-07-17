@@ -44,7 +44,7 @@ export default function AdminSettings() {
         name: newName.trim(),
         slug: slugify(newName),
         sort_order: categories.length,
-      }, { headers: getAdminHeaders() });
+      });
       setNewName("");
       toast({ title: "Catégorie ajoutée" });
       load();
@@ -70,20 +70,36 @@ export default function AdminSettings() {
 
   const saveEdit = async (c) => {
     if (!editName.trim()) return;
-    await apiPut(`/api/categories/${c.id}`, {
-      name: editName.trim(),
-      slug: slugify(editName),
-    }, { headers: getAdminHeaders() });
-    toast({ title: "Catégorie modifiée" });
-    cancelEdit();
-    load();
+    try {
+      await apiPut(`/api/categories/${c.id}`, {
+        name: editName.trim(),
+        slug: slugify(editName),
+      });
+      toast({ title: "Catégorie modifiée" });
+      cancelEdit();
+      load();
+    } catch (err) {
+      toast({
+        title: "Erreur",
+        description: err.message || "Impossible de modifier la catégorie",
+        variant: "destructive",
+      });
+    }
   };
 
   const deleteCategory = async (c) => {
     if (!confirm(`Supprimer la catégorie « ${c.name} » ?`)) return;
-    await apiDelete(`/api/categories/${c.id}`, { headers: getAdminHeaders() });
-    toast({ title: "Catégorie supprimée" });
-    load();
+    try {
+      await apiDelete(`/api/categories/${c.id}`);
+      toast({ title: "Catégorie supprimée" });
+      load();
+    } catch (err) {
+      toast({
+        title: "Erreur",
+        description: err.message || "Impossible de supprimer la catégorie",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

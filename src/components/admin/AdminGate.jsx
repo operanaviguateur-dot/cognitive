@@ -8,6 +8,7 @@ import AdminLayout from "@/components/admin/AdminLayout";
 
 const ADMIN_CODE = "u1Rd49dgU4";
 const STORAGE_KEY = "chronicle_admin_access";
+const CODE_KEY = "chronicle_admin_code"; // read by getAdminHeaders() in client.js
 
 export default function AdminGate() {
   const [checking, setChecking] = useState(true);
@@ -24,6 +25,7 @@ export default function AdminGate() {
     e.preventDefault();
     if (code.trim() === ADMIN_CODE) {
       sessionStorage.setItem(STORAGE_KEY, "true");
+      sessionStorage.setItem(CODE_KEY, code.trim()); // needed for X-Admin-Code header
       setGranted(true);
       setError("");
     } else {
