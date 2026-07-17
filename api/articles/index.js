@@ -2,8 +2,8 @@
  * api/articles.js — GET /api/articles | POST /api/articles
  * Collection endpoint: list articles (public) or create (admin).
  */
-import { filter, create } from '../lib/repositories/articleRepo.js';
-import { optionalAuth, isAdmin } from '../lib/auth/middleware.js';
+import { filter, create } from '../../lib/repositories/articleRepo.js';
+import { optionalAuth, isAdmin } from '../../lib/auth/middleware.js';
 
 export default async function handler(req, res) {
   await optionalAuth(req, res, null);

@@ -2,8 +2,8 @@
  * api/categories.js — GET /api/categories | POST /api/categories
  * Collection endpoint: list categories (public) or create (admin).
  */
-import { list, create } from '../lib/repositories/categoryRepo.js';
-import { optionalAuth, isAdmin } from '../lib/auth/middleware.js';
+import { list, create } from '../../lib/repositories/categoryRepo.js';
+import { optionalAuth, isAdmin } from '../../lib/auth/middleware.js';
 
 export default async function handler(req, res) {
   await optionalAuth(req, res, null);

@@ -2,7 +2,7 @@
  * api/comments.js — GET /api/comments | POST /api/comments
  * Collection endpoint: get comments for an article or post a new one.
  */
-import { getByArticleId, create } from '../lib/repositories/commentRepo.js';
+import { getByArticleId, create } from '../../lib/repositories/commentRepo.js';
 
 function isInvalidUUID(err) {
   return err?.code === '22P02' || err?.message?.includes('invalid input syntax for type uuid');
